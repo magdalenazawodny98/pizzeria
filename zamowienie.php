@@ -24,10 +24,22 @@
     // Getting additives
     $query_additives = "SELECT * FROM dodatki;";
     $additives = mysqli_query($conn, $query_additives);
+    $additivesRows = mysqli_fetch_all($additives);
+    
 
     // Getting waiter
     $query_waiter = "SELECT * FROM kelner;";
     $waiter = mysqli_query($conn, $query_waiter);
+
+    function fillSelectWithAdditives($rows) {
+        $result = "";
+
+        foreach($rows as $row) {
+            $result .= '<option value="' . $row[0] . '">' . $row[1] . ' ' . $row[2]. 'zl</option>';
+        }
+
+        return $result;
+    }
     
 ?>
     
@@ -53,6 +65,22 @@
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="css/style.css">    
+
+        <script>
+            $(document).ready(function(e){
+                //Variables
+                var add = '<select class="form-control additional-field" name="dodatki"><?php echo fillSelectWithAdditives($additivesRows); ?></select>'
+        
+                //Add rows to the form
+                $("#add").click(function(e){
+                    $("#additional-additives").append(add);
+                });
+
+                //Remove rows from the form
+
+                //Populate values from the first row
+            });
+        </script>
     </head>
     <body>
         <nav class="navbar navbar-default">
@@ -123,16 +151,17 @@
                 echo '<div class="form-group">';
                 echo '<label for="additives">Dodatki:</label>';
                 echo '<select class="form-control" id="additives" name="dodatki">';
-                while($row = mysqli_fetch_array($additives)) {
-                    echo "<option value='" . $row['id'] . "'>" . $row['nazwa'] . " " . $row['cena']. "zl</option>";
-                }
+                echo fillSelectWithAdditives($additivesRows);
                 echo '</select>';
                 echo '</div>';
             }
+           
 
         ?>
-
+            <div id="additional-additives">
+            </div>
             <div class="form-group">
+                <a href="#" id="add">+</a>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="dodatki_ilosc" id="dodatki_ilosc" value="zwykle" checked>
                     <label class="form-check-label" for="dodatki_ilosc">
