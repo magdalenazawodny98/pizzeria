@@ -35,7 +35,7 @@
         $result = "";
 
         foreach($rows as $row) {
-            $result .= '<option value="' . $row[0] . '">' . $row[1] . ' ' . $row[2]. 'zl</option>';
+            $result .= '<option data-price="' . $row[2] . '"  value="' . $row[0] . '">' . $row[1] . ' ' . $row[2]. 'zl</option>';
         }
 
         return $result;
@@ -69,11 +69,53 @@
         <script>
             $(document).ready(function(e){
                 //Variables
-                var add = '<select class="form-control additional-field" name="dodatki"><?php echo fillSelectWithAdditives($additivesRows); ?></select>'
+                let add = '<select class="form-control additional-field" name="dodatki[]"><?php echo fillSelectWithAdditives($additivesRows); ?></select>'
         
                 //Add rows to the form
                 $("#add").click(function(e){
                     $("#additional-additives").append(add);
+                });
+
+                //Remove rows from the form
+
+                //Populate values from the first row
+            });
+        </script>
+
+        <script> 
+            $(document).ready(function(e){
+                
+                //Add rows to the form
+                $("#calculate").click(function(e){
+                    let pizzaPrice = 0;
+                    let pizzaName = "";
+                    let sizeMultipier = 1;
+                    let defaultAdditivesPrice = 0;
+                    let orderPrice = 0;
+                    let discount = 1;
+                    // alert($( "#pizza option:selected" ).data("price"));
+                    pizzaPrice = Number($( "#pizza option:selected" ).data("price"));
+                    pizzaName = $( "#pizza option:selected" ).text();
+                    sizeMultipier =  Number($( "#size option:selected" ).data("size"));
+                    defaultAdditivesPrice =  Number($( "#additives option:selected" ).data("price"));
+                    console.log(pizzaName);
+
+                    if (!(pizzaName.indexOf("Fantazja") >= 0)){
+                        discount = 0.8;
+                        console.log("Zniżka dodana");
+                    }
+                
+
+                    orderPrice += pizzaPrice * sizeMultipier;
+                    orderPrice += defaultAdditivesPrice  * sizeMultipier;
+                    $("#additional-additives select.additional-field").each(function(index){
+                        console.log($(this).children("option:selected").data("price"));
+                        let oneAdditionPrice = Number($(this).children("option:selected").data("price"));
+                        orderPrice += oneAdditionPrice * sizeMultipier;
+                    })
+
+                    orderPrice *= discount;
+                    alert("Pizza kosztuje: " + orderPrice);
                 });
 
                 //Remove rows from the form
@@ -116,7 +158,7 @@
                 echo '<label for="pizza">Rodzaj pizzy:</label>';
                 echo '<select class="form-control" id="pizza" name="pizza">';
                 while($row = mysqli_fetch_array($pizzas)) {
-                    echo "<option value='" . $row['id'] . "'>" . $row['nazwa'] . " " . $row['skladniki']. " " . $row['cena'] . "zl</option>";
+                    echo "<option data-price='" . $row['cena'] . "' value='" . $row['id'] . "'>" . $row['nazwa'] . " " . $row['skladniki']. " " . $row['cena'] . "zl</option>";
                 }
                 echo '</select>';
                 echo '</div>';
@@ -128,7 +170,7 @@
                 echo '<label for="size">Wybór rozmiaru:</label>';
                 echo '<select class="form-control" id="size" name="rozmiar">';
                 while($row = mysqli_fetch_array($sizes)) {
-                    echo "<option value='" . $row['id'] . "'>" . $row['nazwa'] . " " . $row['srednica_cm']. "cm</option>";
+                    echo "<option data-size='" . $row['mnoznik'] . "' value='" . $row['id'] . "'>" . $row['nazwa'] . " " . $row['srednica_cm']. "cm</option>";
                 }
                 echo '</select>';
                 echo '</div>';
@@ -150,7 +192,7 @@
             if ($additives) {
                 echo '<div class="form-group">';
                 echo '<label for="additives">Dodatki:</label>';
-                echo '<select class="form-control" id="additives" name="dodatki">';
+                echo '<select class="form-control" id="additives" name="dodatki[]">';
                 echo fillSelectWithAdditives($additivesRows);
                 echo '</select>';
                 echo '</div>';
@@ -161,7 +203,7 @@
             <div id="additional-additives">
             </div>
             <div class="form-group">
-                <a href="#" id="add">+</a>
+                <button type="button"  id="add" class="btn"><i class="fa fa-plus"></i> Dodaj dodatek</button>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="dodatki_ilosc" id="dodatki_ilosc" value="zwykle" checked>
                     <label class="form-check-label" for="dodatki_ilosc">
@@ -200,6 +242,8 @@
             
             <button type="submit" name="submit" class="btn btn-primary">Złóż zamówienie</button>
         </form>
+
+        <button type="button" id="calculate" name="price-calculate" class="btn btn-secondary">Oblicz cenę</button>
 
         </section>
         <!-- skrypt do obslugi cookies -->

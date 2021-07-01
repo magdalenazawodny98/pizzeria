@@ -17,6 +17,7 @@
         $pizza_price_query = "SELECT calculate_pizza_price(". $id_pizza . "," . $id_rozmiar .");";
         $pizza_price = mysqli_query($con, $pizza_price_query);
 
+        echo $pizza_price;
         return mysqli_fetch_array($pizza_price)[0];
     }
      

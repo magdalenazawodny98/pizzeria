@@ -4,7 +4,8 @@
     $pizza = $_POST['pizza'];
     $rozmiar = $_POST['rozmiar'];
     $ciasto = $_POST['ciasto'];
-    $dodatki = $_POST['dodatki'];
+    // $dodatki1 = $_POST['dodatki'][0];
+    // $dodatki2 = $_POST['dodatki'][1];
     $kelner = $_POST['kelner'];
     $nr_stolika = $_POST['nr_stolika'];
     $dodatki_ilosc = $_POST['dodatki_ilosc'];
@@ -13,7 +14,9 @@
     // echo $pizza. '<br>'; 
     // echo $rozmiar. '<br>'; 
     // echo $ciasto. '<br>';
-    // echo $dodatki. '<br>';
+    //  echo $dodatki1. '<br>';
+    //  echo $dodatki2. '<br>';
+
     // echo $kelner. '<br>';
     // echo $nr_stolika. '<br>';
     // echo $dodatki_ilosc. '<br>';
@@ -41,11 +44,20 @@
         $isError = true;
     };
 
-    $query_dodatki = "INSERT INTO zamowienia_dodatki (zamowienie_id, dodatek_id, ilosc) VALUES (". mysqli_insert_id($conn). "," . $dodatki . "," .$ilosc .");"; 
+    $insert_zamowienie_id = mysqli_insert_id($conn);
 
-    if(!mysqli_query($conn, $query_dodatki)) {
-        $isError = true;
+    if(isset($_POST["dodatki"]) && is_array($_POST["dodatki"])){	
+        foreach($_POST["dodatki"] as $key => $dodatek){
+
+            $query_dodatki = "INSERT INTO zamowienia_dodatki (zamowienie_id, dodatek_id, ilosc) VALUES (". $insert_zamowienie_id . "," . $dodatek . "," .$ilosc .");"; 
+
+            if(!mysqli_query($conn, $query_dodatki)) {
+                $isError = true;
+            }
+        }
     }
+
+    
     
 ?>
 
